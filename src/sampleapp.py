@@ -82,30 +82,33 @@ def games(id=None):
             if guessed_char < 'a' or guessed_char > 'z':
                 return error_response('invalid char.', 400)
             game = Game.query.filter(Game.id == id).first()
-            if game.status == 'busy':
-                chars = list(game.guessed_word)
-                hit = False
-                for i, c in enumerate(game.actual_word):
-                    if guessed_char == c:
-                        chars[i] = guessed_char
-                        hit = True
+            if game:
+                if game.status == 'busy':
+                    chars = list(game.guessed_word)
+                    hit = False
+                    for i, c in enumerate(game.actual_word):
+                        if guessed_char == c:
+                            chars[i] = guessed_char
+                            hit = True
 
-                if hit:
-                    game.guessed_word = ''.join(chars)
-                    #if there is no (.), then game is a success
-                    if game.guessed_word.count('.') == 0:
-                        game.status = 'success'
-                    db.session.commit()
-                    return jsonify(status='hit')
+                    if hit:
+                        game.guessed_word = ''.join(chars)
+                        #if there is no (.), then game is a success
+                        if game.guessed_word.count('.') == 0:
+                            game.status = 'success'
+                        db.session.commit()
+                        return jsonify(status='hit')
+                    else:
+                        game.tries_left -= 1
+                        #if there is not any tries left, the game will fail
+                        if game.tries_left < 1:
+                            game.status = 'fail'
+                        db.session.commit()
+                        return jsonify(status='no hit')
                 else:
-                    game.tries_left -= 1
-                    #if there is not any tries left, the game will fail
-                    if game.tries_left < 1:
-                        game.status = 'fail'
-                    db.session.commit()
-                    return jsonify(status='no hit')
+                    return jsonify(status="failure: game has ended")
             else:
-                return jsonify(status="failure: game has ended")
+                return error_response('game is not found.', 404)
 
         else:
             game = Game.query.filter(Game.id == id).first()
