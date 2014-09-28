@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sample.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///%s/sample.db' % os.path.dirname(os.path.realpath(__file__))
 app.config["SQLALCHEMY_ECHO"] = False
 app.config["SECRET_KEY"] = os.urandom(24)
 app.config["DEBUG"] = True
@@ -66,6 +66,11 @@ def error_response(message, code):
     resp = jsonify(error=message)
     resp.status_code = code
     return resp
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return error_response('path is invalid', 404)
 
 
 @app.route('/games/<id>', methods=['GET', 'POST'])

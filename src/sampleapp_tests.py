@@ -182,7 +182,6 @@ class SampleAppTestCase(unittest.TestCase):
                 assert 'word' in json_response
                 assert '.a...a.' == json_response['word']
 
-
     def test_invalid_chars(self):
         rv = self.app.post('/games')
         assert 200 == rv.status_code
