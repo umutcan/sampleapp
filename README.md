@@ -19,5 +19,5 @@ python src/sampleapp.py runserver
 
 ##Running tests
 ```
-python src/sampleapp.py_tests runserver
+python src/sampleapp.py_tests
 ```
